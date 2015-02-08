@@ -13,5 +13,5 @@ iptables -t nat -A POSTROUTING -o em1 -j MASQUERADE
 
 #Direct all incoming packets to 192.168.10.2
 #iptables -t nat -A PREROUTING -i em1 -j DNAT --to-destination 192.168.10.2
-iptables -t nat -A PREROUTING -i em1 -p tcp -m multiport --dport 80 -j DNAT --to-destination 192.168.10.2
+iptables -t nat -A PREROUTING -i em1 -p tcp -m multiport --dport 80 -j DNAT --to-destination <internal machine IP>
 

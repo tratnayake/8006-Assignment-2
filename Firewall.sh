@@ -4,14 +4,13 @@ IPT="/sbin/iptables"
 
 
 
-
 ####USER CONFIG SECTION ###
 IPfw="192.168.0.14"
 IPhost="192.168.10.2"
 intOut="em1"
 intIn="p3p1"
 #HTTP + HTTPS
-TCPallow="80,443"
+TCPallow="80,443,22"
 #DNS + DHCP
 UDPallow="53,67,68"
 ICMPallow=( 0 8 )

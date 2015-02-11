@@ -1,0 +1,4 @@
+#!/bin/bash
+clear
+iptables -L -n -v -x
+

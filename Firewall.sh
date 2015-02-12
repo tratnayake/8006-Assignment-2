@@ -7,8 +7,8 @@ firewallHost="192.168.10.1"
 internalHost="192.168.10.2"
 intOut="em1"
 intIn="p3p1"
-TCPallow="80,443,5000"
-UDPallow="53,67,68,80,500"
+TCPallow="80,443"
+UDPallow="53,67,68"
 ICMPallow=( 0 3 8 )
 
 #### END USER CONFIG SECTION ###
@@ -21,21 +21,6 @@ $IPT -F
 $IPT -P INPUT DROP -m comment --comment "Default policy INPUT DROP"
 $IPT -P FORWARD DROP -m comment --comment "Default policy FORWARD DROP"
 $IPT -P OUTPUT DROP -m comment --comment "Default policy OUTPUT DROP"
-
-#Allow DNS for FIREWALLHOST
-	#Allow going OUT to port 53 (initiating a DNS request)
-	$IPT -A OUTPUT -p UDP --dport 53 -j ACCEPT
-	#Allow coming IN FROM port 53 (DNS reply)
-	$IPT -A INPUT -p UDP --sport 53 -j ACCEPT
-	#Factor for TCP in case UDP times out.
-	$IPT -A OUTPUT -p TCP --dport 53 -j ACCEPT
-	$IPT -A INPUT -p TCP --sport 53 -j ACCEPT
-
-#Allow DHCP for FIREWALLHOST
-	$IPT -A OUTPUT -p UDP --dport 68 -j ACCEPT
-	$IPT -A INPUT -p UDP --sport 68 -j  ACCEPT
-	$IPT -A OUTPUT -p TCP --dport 68 -j ACCEPT
-	$IPT -A INPUT -p TCP --sport 68 -j  ACCEPT
 
 #Drop all packets destined for FIREWALL from the outside
 	$IPT -A INPUT -i $intOut -d $firewallHost -j DROP -m comment --comment "Drop all packets destined for firewall from outside"
@@ -74,12 +59,10 @@ $IPT -P OUTPUT DROP -m comment --comment "Default policy OUTPUT DROP"
 	$IPT -A FORWARD -p TCP -m multiport --sport 20,21,22 -j ACCEPT -m state --state new,established
 
 #Custom SSH and FTP rules
-$IPT -A PREROUTING -t mangle -p tcp --sport 22 \
-  -j TOS --set-tos Minimize-Delay
-$IPT -A PREROUTING -t mangle -p tcp --sport 21 \
-  -j TOS --set-tos Minimize-Delay
-$IPT -A PREROUTING -t mangle -p tcp --sport 20 \
-  -j TOS --set-tos Maximize-Throughput
+$IPT -A PREROUTING -m multiport -t mangle -p tcp --sport 20,21,22 \
+  -j TOS --set-tos Minimize-Delay -m comment --comment "SSH and FTP Min Delay"
+$IPT -A PREROUTING -m multiport -t mangle -p tcp --sport 20,21 \
+  -j TOS --set-tos Maximize-Throughput -m comment --comment "FTP Max Throughput"
 
 #Accept all ICMP on custom packet types
 
